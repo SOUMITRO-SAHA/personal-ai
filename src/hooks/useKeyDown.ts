@@ -1,33 +1,53 @@
-import { useEffect, useState } from "react";
+import {
+  IGlobalEvent,
+  IGlobalEventObject,
+} from "@/core/constants/globalEvents";
+import * as React from "react";
 
-/**
- * Custom hook to listen for keydown events in React.
- * @param targetKeys - An array of keys to listen for, or `null` to listen for all keys.
- * @param onKeyDown - Optional callback triggered when one of the target keys is pressed.
- */
 export const useKeyDown = (
-  targetKeys: string[] | null = null,
-  onKeyDown?: (key: string, event: KeyboardEvent) => void,
+  globalEvents: IGlobalEvent,
+  onCustomEvent?: (event: IGlobalEventObject) => void
 ) => {
-  const [pressedKey, setPressedKey] = useState<string | null>(null);
+  const [pressedKey, setPressedKey] = React.useState<string | null>(null);
+  const isKeyHandled = React.useRef<boolean>(false);
 
-  useEffect(() => {
+  // --- Effects
+  React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const { key } = event;
+      const keyCombination = `${event.ctrlKey ? "ctrl+" : ""}${
+        event.shiftKey ? "shift+" : ""
+      }${event.key.toLowerCase()}`;
 
-      // If targetKeys is null, listen to all keys. Otherwise, check if the key is in targetKeys.
-      if (!targetKeys || targetKeys.includes(key)) {
-        setPressedKey(key);
+      if (isKeyHandled.current) return;
 
-        // Trigger callback if provided
-        if (onKeyDown) {
-          onKeyDown(key, event);
+      const matchingEvent = Object.values(globalEvents).find(
+        (eventObj) => eventObj.keyPressed === keyCombination
+      );
+
+      if (matchingEvent) {
+        setPressedKey(keyCombination);
+        isKeyHandled.current = true;
+
+        if (onCustomEvent) {
+          onCustomEvent(matchingEvent);
         }
+
+        const customEvent = new CustomEvent("globalKeyEvent", {
+          detail: matchingEvent,
+        });
+        window.dispatchEvent(customEvent);
       }
     };
 
-    const handleKeyUp = () => {
-      setPressedKey(null); // Clear pressedKey when the key is released
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const keyCombination = `${event.ctrlKey ? "ctrl+" : ""}${
+        event.shiftKey ? "shift+" : ""
+      }${event.key.toLowerCase()}`;
+
+      if (pressedKey === keyCombination) {
+        isKeyHandled.current = false;
+        setPressedKey(null);
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -37,7 +57,7 @@ export const useKeyDown = (
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [targetKeys, onKeyDown]);
+  }, [globalEvents, onCustomEvent, pressedKey]);
 
   return { pressedKey };
 };
