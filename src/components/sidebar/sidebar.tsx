@@ -11,6 +11,9 @@ import ContextSearchSidebar from "./context-search-sidebar";
 import DefaultSidebar from "./default-sidebar";
 import ExtensionsSidebar from "./extensions-sidebar";
 import { ImportantChatSidebar } from "./important-chat-sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { APPLICATION_SHORTCUTS } from "@/constants";
+import { platform } from "@/core";
 
 export const Sidebar = () => {
   const { showSideBar, setShowSideBar } = useLocalFirstStore();
@@ -39,12 +42,25 @@ export const Sidebar = () => {
         <div className="text-sm uppercase font-[500]">
           {activeExtensionTab?.label}
         </div>
-        <button className="p-2 rounded-md cursor-pointer max-w-10 max-h-10 hover:bg-white/10">
-          <PanelLeftClose
-            className="w-6 h-6 text-muted-foreground"
-            onClick={() => setShowSideBar(!showSideBar)}
-          />
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button className="p-2 rounded-md cursor-pointer max-w-10 max-h-10 hover:bg-white/10">
+              <PanelLeftClose
+                className="w-6 h-6 text-muted-foreground"
+                onClick={() => setShowSideBar(!showSideBar)}
+              />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {APPLICATION_SHORTCUTS.TOGGLE_SIDEBAR?.filter(
+                (sc) => sc.key === platform
+              ).map((sc) => (
+                <span key={sc.key}>{sc.modifiers.join(" + ")}</span>
+              ))}
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       <div>{renderSidebarContent(activeExtensionTab)}</div>

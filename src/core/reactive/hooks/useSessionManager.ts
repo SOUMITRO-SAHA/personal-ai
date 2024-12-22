@@ -14,7 +14,7 @@ export const useSessionManager = () => {
 
   const onActivityExtensionClick = (extensionId: string) => {
     const extension = activityExtensionManager.extensions.find(
-      (ext) => ext.id === extensionId
+      (ext) => ext.identificationKey === extensionId
     );
 
     if (extension) {

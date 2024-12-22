@@ -58,36 +58,44 @@ export function generateShortCuts({
 }
 
 export const APPLICATION_SHORTCUTS = {
-  // --- a
+  // --- [ ctrl + <key> ] --- //
+  ACTIVE_TAB: generateShortCuts({
+    key: "t",
+    ctrl: true,
+  }),
+
+  ARCHIVE_ACTIVE_CHATS: generateShortCuts({ key: "a", ctrl: true }),
+
+  CLOSE_ACTIVE_TAB: generateShortCuts({ key: "w", ctrl: true }),
+
+  LOCK_ACTIVE_TAB: generateShortCuts({ key: "l", ctrl: true }),
+
+  NEW_CHAT_WITH_DEFAULT_MODEL: generateShortCuts({ key: "t", ctrl: true }),
+
+  SETTINGS: generateShortCuts({ key: ",", ctrl: true }),
+
+  TOGGLE_SIDEBAR: generateShortCuts({ key: "b", ctrl: true }),
+
+  // --- [ ctrl + shift + <key> ] --- //
   ARCHIVED_CHATS: generateShortCuts({ key: "a", ctrl: true, shift: true }),
 
-  // --- b
+  BOOKMARK_ACTIVE_CHATS: generateShortCuts({ key: "b", alt: true }),
   BOOKMARKED_CHATS: generateShortCuts({ key: "b", ctrl: true, shift: true }),
 
-  // --- c
-  CODE: generateShortCuts({ key: "c", ctrl: true, shift: true }),
+  CODE: generateShortCuts({ key: "e", ctrl: true, shift: true }),
   CONTEXT_SEARCH: generateShortCuts({ key: "f", ctrl: true, shift: true }),
   CHAT: generateShortCuts({ key: "c", ctrl: true, shift: true }),
   CHAT_HISTORY: generateShortCuts({ key: "h", ctrl: true, shift: true }),
-  CHAT_WITH_PDF: generateShortCuts({ key: "a", ctrl: true, shift: true }),
-  CLOSE_TAB: generateShortCuts({ key: "w", ctrl: true }),
+  CHAT_WITH_PDF: generateShortCuts({ key: "p", ctrl: true, shift: true }),
 
-  // --- d
-
-  // --- e
   EXTENSIONS: generateShortCuts({ key: "x", ctrl: true, shift: true }),
 
-  // --- i
   IMPORTANT_CHAT: generateShortCuts({ key: "i", ctrl: true, shift: true }),
 
-  // --- n
-  NEW_TAB: generateShortCuts({ key: "t", ctrl: true }),
+  NEW_CHAT_TEMPORARY: generateShortCuts({ key: "n", ctrl: true, shift: true }),
 
-  // --- s
-  SETTINGS: generateShortCuts({ key: "s", ctrl: true, shift: true }),
-
-  // --- t
-  TOGGLE_SIDEBAR: generateShortCuts({ key: "s", ctrl: true, alt: true }),
+  // --- [ alt + <key> ] --- //
+  RENAME_ACTIVE_CHAT: generateShortCuts({ key: "r", alt: true }),
 };
 
 export const DEFAULT_EXTENSIONS_ITEMS: Readonly<IDefaultExtensionItems>[] = [

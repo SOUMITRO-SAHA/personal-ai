@@ -32,7 +32,7 @@ export const ActivityBarItem: React.FC<IActivityBarItemProps> = React.memo(
           props.className
         )}
         onClick={() => {
-          onActivityExtensionClick(props.id);
+          onActivityExtensionClick(props.identificationKey);
         }}
       >
         {props.identificationKey && (

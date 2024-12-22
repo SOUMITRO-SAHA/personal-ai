@@ -35,8 +35,10 @@ export enum EGlobalEvent {
 
   // --- c
   CHAT = "chat",
+  CHAT_HISTORY = "chat_history",
   CHAT_WITH_PDF = "chat_with_pdf",
   CODE = "code",
+  CLOSE_ACTIVE_TAB = "close_active_tab",
 
   // --- d
 
@@ -78,6 +80,7 @@ export enum EGlobalEvent {
   SETTINGS = "settings",
 
   // --- t
+  TOGGLE_SIDEBAR = "toggle_sidebar",
 
   // --- u
 

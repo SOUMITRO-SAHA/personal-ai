@@ -1,3 +1,4 @@
+import { platform } from "@/core";
 import {
   IGlobalEvent,
   IGlobalEventObject,
@@ -21,7 +22,10 @@ export const useKeyDown = (
       if (isKeyHandled.current) return;
 
       const matchingEvent = Object.values(globalEvents).find(
-        (eventObj) => eventObj.keyPressed === keyCombination
+        (eventObj: IGlobalEventObject) =>
+          eventObj.keyPressed
+            .filter((s) => s.key === platform)
+            .map((s) => s.modifiers.join("+"))?.[0] === keyCombination
       );
 
       if (matchingEvent) {

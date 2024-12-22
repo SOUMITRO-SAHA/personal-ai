@@ -10,10 +10,10 @@ import {
 import React from "react";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { createOption } from "@/constants";
-import { generateUUID } from "@/core";
+import { APPLICATION_SHORTCUTS, createOption } from "@/constants";
+import { generateUUID, platform } from "@/core";
 import { useSessionManager } from "@/core/reactive/hooks/useSessionManager";
 import { useApiConfigStore } from "@/core/reactive/store/config/apiConfigStore";
 import { useSessionManagerStore } from "@/core/reactive/store/sessionManager/sessionManagerStore";
@@ -24,7 +24,6 @@ import { useChatData } from "@/hooks/useChatData";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { SidebarItem } from "./sidebar-item";
-import { ScrollAreaThumb } from "@radix-ui/react-scroll-area";
 
 interface DefaultSidebarProps {
   className?: string;
@@ -48,10 +47,27 @@ const DefaultSidebar: React.FC<DefaultSidebarProps> = ({
 
   // ----- Memoization
   const startNewChatOptions = React.useMemo(() => {
+    const newChatShortCut =
+      APPLICATION_SHORTCUTS?.NEW_CHAT_WITH_DEFAULT_MODEL?.filter(
+        (s) => s.key === platform
+      )?.map((s) => s.modifiers.join(" + "));
+
+    const newTemporaryChatShortCut =
+      APPLICATION_SHORTCUTS?.NEW_CHAT_TEMPORARY?.filter(
+        (s) => s.key === platform
+      )?.map((s) => s.modifiers.join(" + "));
+
     return [
       {
         id: generateUUID(),
-        label: `Start New Chat with Local`,
+        label: () => (
+          <p>
+            Start New Chat with Local{" "}
+            <strong className="text-xs text-primary">
+              ({newChatShortCut})
+            </strong>
+          </p>
+        ),
         className: "",
         icon: <Plus className="w-5 h-5" />,
         action: () => handleCreateTab("Chat with Local"),
@@ -59,7 +75,14 @@ const DefaultSidebar: React.FC<DefaultSidebarProps> = ({
       {
         id: generateUUID(),
         className: "",
-        label: `Start Temporary Chat`,
+        label: () => (
+          <p>
+            Start Temporary Chat{" "}
+            <strong className="text-xs text-primary">
+              ({newTemporaryChatShortCut})
+            </strong>
+          </p>
+        ),
         icon: <MessageCircleDashed className="w-5 h-5" />,
         action: () => handleCreateTab("Quick Chat"),
       },
@@ -178,7 +201,9 @@ const DefaultSidebar: React.FC<DefaultSidebarProps> = ({
                 onClick={opt.action}
               >
                 <span>{opt.icon}</span>
-                <span>{opt.label}</span>
+                <span>
+                  {typeof opt.label === "string" ? opt.label : opt.label()}
+                </span>
               </Button>
             ))}
             <Separator className="my-2 bg-muted-foreground/40" />

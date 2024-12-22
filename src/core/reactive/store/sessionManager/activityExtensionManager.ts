@@ -24,7 +24,7 @@ interface ActivityExtensionStore {
     key: EXTENSION_KEY,
     shortCut: IShortCut[],
     displaySidebar?: boolean,
-    newTab?: boolean,
+    newTab?: boolean
   ) => void;
   removeExtension: (id: string) => void;
   getDefaultExtension: () => void;
@@ -40,7 +40,10 @@ export const useActivityExtensionStore = create<ActivityExtensionStore>()(
       /// ====== Actions ====== ///
       setActiveExtensionTab: (id: string) => {
         const { extensions, activeExtensionTab } = get();
-        const extension = extensions.find((ext) => ext.id === id);
+        const extension = extensions.find(
+          (ext) => ext.identificationKey === id
+        );
+
         if (extension && extension !== activeExtensionTab) {
           set({ activeExtensionTab: extension });
         }
@@ -49,7 +52,7 @@ export const useActivityExtensionStore = create<ActivityExtensionStore>()(
       setActiveExtensionTabByKey(key: string): void {
         const { extensions, activeExtensionTab } = get();
         const extension = extensions.find(
-          (ext) => ext.identificationKey === key,
+          (ext) => ext.identificationKey === key
         );
         if (extension && extension !== activeExtensionTab) {
           set({ activeExtensionTab: extension });
@@ -61,7 +64,7 @@ export const useActivityExtensionStore = create<ActivityExtensionStore>()(
         identificationKey: EXTENSION_KEY,
         shortCut: IShortCut[],
         displaySidebar?: boolean,
-        newTab?: boolean,
+        newTab?: boolean
       ) => {
         const { extensions } = get();
         const newExtension: IExtension = {
@@ -96,6 +99,6 @@ export const useActivityExtensionStore = create<ActivityExtensionStore>()(
     {
       name: "ActivityExtensionStore",
       anonymousActionType: "ActivityExtensionStore",
-    },
-  ),
+    }
+  )
 );
