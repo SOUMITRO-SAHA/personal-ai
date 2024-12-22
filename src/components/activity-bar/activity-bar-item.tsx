@@ -42,11 +42,8 @@ export const ActivityBarItem: React.FC<IActivityBarItemProps> = React.memo(
                 {getIconByKey(props.identificationKey)}
               </div>
             </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              className="border select-none border-muted-foreground/40"
-            >
-              <div className="text-sm font-medium dark:text-gray-400">
+            <TooltipContent side="right" className="border border-primary">
+              <div className="text-sm">
                 <span>{props.label}</span>
                 <span className="ml-1">
                   <span>{"("}</span>
