@@ -40,6 +40,7 @@ interface ISendLLMMessageParams {
 }
 
 interface IUseChatResponse {
+  isError: boolean;
   isLoading: boolean;
   isChatLoading: boolean;
   messages: ILlmMessage[];
@@ -84,6 +85,7 @@ export const useChat = (): IUseChatResponse => {
     data: chat,
     isLoading: isChatLoading,
     error,
+    isError,
   } = useQuery<IChatResponse>({
     queryKey: ["chat", activeTab?.tab.id],
     queryFn: async () => {
@@ -354,6 +356,7 @@ export const useChat = (): IUseChatResponse => {
     favorite,
     messages,
     isLoading,
+    isError,
     isChatLoading,
     chatSessionId: chat?.session_id,
     abort: () => abortController?.abort(),

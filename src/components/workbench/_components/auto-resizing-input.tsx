@@ -1,4 +1,4 @@
-import { Paperclip, Square } from "lucide-react";
+import { Check, Paperclip, Square } from "lucide-react";
 import * as React from "react";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -7,13 +7,28 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import useCurrentChatHistoryStore from "@/store/chat-history";
+import { ISelect } from "@/core/types";
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { CommandGroup } from "cmdk";
 
 interface IAutoResizingInputProps {
   value?: string;
-  success?: boolean;
+  isError?: boolean;
   isGenerating?: boolean;
   onEnter?: (value: string) => void;
   onAbort?: () => void;
@@ -27,33 +42,29 @@ export const AutoResizingInput: React.FC<IAutoResizingInputProps> = ({
   onEnter,
   className,
   isGenerating,
-  success,
+  isError,
   placeholder,
   onAbort,
 }) => {
+  // --- State
   const [text, setText] = React.useState("");
+  const [showPopover, setShowPopover] = React.useState(false);
+  const [selectedOption, setSelectedOption] = React.useState<string | null>(
+    null
+  );
+  const [options, setOptions] = React.useState<ISelect[]>([]);
+
+  // --- Ref
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(e.target.value);
-  };
+  // --- Store
+  const { chatHistory, addMessage, getMessage } = useCurrentChatHistoryStore();
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      if (e.shiftKey) {
-        return;
-      } else {
-        e.preventDefault();
-        e.stopPropagation();
+  // --- Effect
+  React.useEffect(() => {
+    // Load the Options Here
+  }, []);
 
-        if (onEnter) {
-          onEnter(text);
-        }
-      }
-    }
-  };
-
-  // ----- Effect
   React.useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -62,10 +73,56 @@ export const AutoResizingInput: React.FC<IAutoResizingInputProps> = ({
   }, [text]);
 
   React.useEffect(() => {
-    if (success) {
-      setText("");
+    if (isError && chatHistory.length > 0) {
+      setText(chatHistory[chatHistory.length - 1] || "");
     }
-  }, [success]);
+  }, [isError, chatHistory]);
+
+  // --- Handlers
+  const handleOptionSelect = (option: string) => {
+    setText((prev) => prev + option);
+    setShowPopover(false);
+    setTimeout(() => textareaRef.current?.focus(), 0);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const currentValue = e.target.value;
+    setText(currentValue);
+
+    // Check if `@` is typed
+    if (currentValue.endsWith("@")) {
+      console.log("Pressed @");
+      // @ -> Mention Another conversation
+      setShowPopover(true);
+    } else if (currentValue.endsWith("#")) {
+      // # -> Tags
+      console.log("Pressed #");
+    } else if (currentValue.endsWith("/")) {
+      // `/` -> Features like chat, search, so on...
+      console.log("Pressed /");
+    } else {
+      setShowPopover(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey) return;
+
+      e.preventDefault();
+      if (onEnter) {
+        onEnter(text);
+        addMessage(text);
+        setText("");
+      }
+    } else if (e.key === "ArrowUp") {
+      const message = getMessage("ArrowUp");
+      setText(message);
+    } else if (e.key === "ArrowDown") {
+      const message = getMessage("ArrowDown");
+      setText(message);
+    }
+  };
 
   return (
     <div
@@ -78,45 +135,89 @@ export const AutoResizingInput: React.FC<IAutoResizingInputProps> = ({
       )}
     >
       <div className={cn("mx-2", text.length > 0 && "mb-2 mt-auto")}>
-        <div>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className={cn("rounded-full [&_svg]:size-5")}
-              >
-                <Paperclip className="w-6 h-6 text-muted-foreground" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="border border-muted-foreground/40">
-              <p>Attach File</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              variant={"ghost"}
+              size={"icon"}
+              className={cn("rounded-full [&_svg]:size-5")}
+            >
+              <Paperclip className="w-6 h-6 text-muted-foreground" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="border border-muted-foreground/40">
+            <p>Attach File</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
-      <ScrollArea
-        className={cn("max-h-80 h-fit w-full", text.length > 600 && "h-80")}
-      >
-        <Textarea
-          ref={textareaRef}
-          rows={1}
-          value={value ?? text}
-          placeholder={placeholder ?? "Ask Local First AI..."}
-          onChange={handleTextChange}
-          onKeyDown={handleKeyDown}
-          className={cn(
-            "p-0 py-5 overflow-hidden leading-relaxed tracking-wider border-none resize-none text-md h-fit focus-visible:outline-none focus-visible:ring-0 placeholder:text-muted-foreground text-secondary-foreground"
-          )}
-        />
-      </ScrollArea>
+      {/* Popover */}
+      <Popover open={showPopover}>
+        <PopoverTrigger asChild>
+          <ScrollArea
+            className={cn("max-h-80 h-fit w-full", text.length > 600 && "h-80")}
+          >
+            <Textarea
+              autoFocus
+              ref={textareaRef}
+              rows={1}
+              value={value ?? text}
+              placeholder={placeholder ?? "Type your message..."}
+              onChange={handleTextChange}
+              onKeyDown={handleKeyDown}
+              className={cn(
+                "p-0 py-5 overflow-hidden leading-relaxed tracking-wider border-none resize-none text-md h-fit focus-visible:outline-none focus-visible:ring-0 placeholder:text-muted-foreground text-secondary-foreground"
+              )}
+            />
+          </ScrollArea>
+        </PopoverTrigger>
+        <PopoverContent
+          side="top"
+          align="start"
+          className="p-2 rounded-md shadow-lg border-muted-foreground/40 min-h-40 bg-background-1 max-h-fit"
+        >
+          <Command>
+            <CommandInput
+              placeholder="Search..."
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setShowPopover((prev) => !prev);
+                  textareaRef.current?.focus();
+                }
+              }}
+            />
+            <CommandList>
+              <CommandEmpty>No option found.</CommandEmpty>
+              <CommandGroup>
+                {options.map((option, _idx) => (
+                  <CommandItem
+                    key={`${option.value}__${_idx}`}
+                    value={option.value}
+                    onSelect={(value) => {
+                      setSelectedOption(value);
+                      setShowPopover(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {option.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       <div className={cn("mx-3", text.length > 0 && "mb-2 mt-auto")}>
         {isGenerating ? (
           <Button
             size={"icon"}
-            className={cn("rounded-full  bg-secondary-foreground")}
+            className="rounded-full bg-secondary-foreground"
             onClick={onAbort}
           >
             <Square className="fill-background" />
@@ -131,8 +232,6 @@ export const AutoResizingInput: React.FC<IAutoResizingInputProps> = ({
             onClick={() => {
               if (onEnter) {
                 onEnter?.(text);
-              } else {
-                console.log("Enter pressed, but no onClick handler provided.");
               }
             }}
           >

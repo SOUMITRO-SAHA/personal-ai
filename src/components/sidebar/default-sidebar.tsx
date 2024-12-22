@@ -10,7 +10,7 @@ import {
 import React from "react";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { createOption } from "@/constants";
 import { generateUUID } from "@/core";
@@ -24,6 +24,7 @@ import { useChatData } from "@/hooks/useChatData";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { SidebarItem } from "./sidebar-item";
+import { ScrollAreaThumb } from "@radix-ui/react-scroll-area";
 
 interface DefaultSidebarProps {
   className?: string;
@@ -201,7 +202,9 @@ const DefaultSidebar: React.FC<DefaultSidebarProps> = ({
 
       <Separator />
 
-      <ScrollArea className={cn("flex-1 h-[calc(100vh-4rem)] w-full")}>
+      <ScrollArea
+        className={cn("flex-1 h-fit max-h-[calc(100vh-6.5rem)] w-full")}
+      >
         <div className="flex flex-col items-center w-full mx-auto">
           {results?.map((result, idx) => {
             const data = result?.data?.data;

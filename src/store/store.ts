@@ -42,10 +42,10 @@ export const useLocalFirstStore = create<StoreState>()(
           showSideBar: state.showSideBar,
           settings: state.settings,
         }),
-      },
+      }
     ),
-    { name: "Store" },
-  ),
+    { name: "Store" }
+  )
 );
 
 export default useLocalFirstStore;

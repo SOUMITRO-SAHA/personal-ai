@@ -43,8 +43,15 @@ export const LocalLlmSetupSettingScreen = () => {
   const { toast } = useToast();
 
   // --- Store
-  const { localConfigs, embeddingConfigs, addLocalConfig } =
-    useApiConfigStore();
+  const {
+    localConfigs,
+    embeddingConfigs,
+    variant,
+
+    addLocalConfig,
+    setModel,
+    setVariant,
+  } = useApiConfigStore();
 
   // --- Effects
   React.useEffect(() => {
@@ -211,13 +218,16 @@ export const LocalLlmSetupSettingScreen = () => {
 
           <div className="pl-1">
             <Select
-              value={localConfigs?.[0].variant}
+              value={variant}
               onValueChange={(value) => {
                 addLocalConfig(EAiProvider.LOCAL, {
                   model: EAiProvider.LOCAL,
                   variant: value,
                   apikey: "",
                 });
+
+                setModel(EAiProvider.LOCAL);
+                setVariant(value);
               }}
             >
               <SelectTrigger className="w-64 bg-background">
@@ -243,13 +253,15 @@ export const LocalLlmSetupSettingScreen = () => {
 
           <div className="pb-1 pl-1">
             <Select
-              value={embeddingConfigs?.[0]?.variant}
+              value={variant}
               onValueChange={(value) => {
                 addLocalConfig(EAiProvider.EMBEDDING, {
                   model: EAiProvider.EMBEDDING,
                   variant: value,
                   apikey: "",
                 });
+                setModel(EAiProvider.EMBEDDING);
+                setVariant(value);
               }}
             >
               <SelectTrigger className="w-64 bg-background">

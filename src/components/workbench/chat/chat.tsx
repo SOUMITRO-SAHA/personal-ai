@@ -2,7 +2,7 @@ import { Archive, Pen, Star } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -95,10 +95,11 @@ export const Chat = React.memo(() => {
 
   // ----- Effect
   React.useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollableDiv = scrollAreaRef.current;
-      scrollableDiv.scrollTop = scrollableDiv.scrollHeight;
-    }
+    scrollToBottom();
+  }, []);
+
+  React.useEffect(() => {
+    scrollToBottom();
   }, [chat.messages]);
 
   // ----- Handlers
@@ -167,156 +168,138 @@ export const Chat = React.memo(() => {
     }
   };
 
-  // Show or hide the "Scroll to Bottom" button based on scroll position
-  const handleScroll = () => {
-    if (scrollAreaRef.current) {
-      const scrollableDiv = scrollAreaRef.current;
-      const atBottom =
-        scrollableDiv.scrollHeight - scrollableDiv.scrollTop ===
-        scrollableDiv.clientHeight;
-      setShowScrollButton(!atBottom);
-    }
-  };
-
-  // Scroll to the bottom function
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: "smooth",
-      });
+      scrollAreaRef.current.scrollIntoView(false);
     }
   };
 
   return (
     <section className="relative h-full">
-      {activeTab && activeTab.tab.id && (
-        <div className="sticky top-0 left-0 flex items-center justify-between w-full pr-5 bg-background-1 h-fit">
-          <Select
-            value={JSON.stringify({ model, variant })}
-            onValueChange={handleModelChange}
-          >
-            <SelectTrigger className="h-8 text-xs shadow-inner min-w-52 max-w-fit focus:ring-0 bg-background-2 shadow-background-1/40">
-              <SelectValue placeholder={"Not Selected"} />
-            </SelectTrigger>
-            <SelectContent>
-              {availableModels?.map((models) => (
-                <SelectGroup
-                  key={`${models?.[0]?.model}__${models.length}`}
-                  className="my-1 rounded bg-background-1"
-                >
-                  <SelectLabel className={cn("text-white capitalize")}>
-                    {models?.[0]?.model}
-                  </SelectLabel>
+      <ScrollArea className="relative flex-1 w-full h-full">
+        {activeTab && activeTab.tab.id && (
+          <div className="sticky top-0 left-0 flex items-center justify-between w-full pr-5 bg-background-1 h-fit">
+            <Select
+              value={JSON.stringify({ model, variant })}
+              onValueChange={handleModelChange}
+            >
+              <SelectTrigger className="h-8 text-xs shadow-inner min-w-52 max-w-fit focus:ring-0 bg-background-2 shadow-background-1/40">
+                <SelectValue placeholder={"Not Selected"} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableModels?.map((models) => (
+                  <SelectGroup
+                    key={`${models?.[0]?.model}__${models.length}`}
+                    className="my-1 rounded bg-background-1"
+                  >
+                    <SelectLabel className={cn("text-white capitalize")}>
+                      {models?.[0]?.model}
+                    </SelectLabel>
 
-                  {models.map((opt) => (
-                    <SelectItem
-                      key={opt.variant}
-                      value={JSON.stringify({
-                        model: opt.model,
-                        variant: opt.variant,
-                      })}
-                    >
-                      <div className={cn("flex items-center space-x-2")}>
-                        <span>
-                          {getIconByIconKey({
-                            key: opt.model,
-                            className: "w-4 h-4",
-                          })}
-                        </span>
-                        <span className={cn("flex items-center space-x-1")}>
-                          <span className="capitalize">{opt.model}</span>
-                          {opt.variant && <span>({opt.variant})</span>}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
+                    {models.map((opt) => (
+                      <SelectItem
+                        key={opt.variant}
+                        value={JSON.stringify({
+                          model: opt.model,
+                          variant: opt.variant,
+                        })}
+                      >
+                        <div className={cn("flex items-center space-x-2")}>
+                          <span>
+                            {getIconByIconKey({
+                              key: opt.model,
+                              className: "w-4 h-4",
+                            })}
+                          </span>
+                          <span className={cn("flex items-center space-x-1")}>
+                            <span className="capitalize">{opt.model}</span>
+                            {opt.variant && <span>({opt.variant})</span>}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <div>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"ghost"} size={"icon"}>
-                  <Pen className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                className="border select-none border-muted-foreground/40"
-              >
-                <span>Rename</span>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={"ghost"}
-                  size={"icon"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
+            <div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant={"ghost"} size={"icon"}>
+                    <Pen className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="border select-none border-muted-foreground/40"
                 >
-                  <Star
-                    className={cn(
-                      "w-5 h-5",
-                      chat.favorite ? "fill-primary" : "fill-transparent"
-                    )}
+                  <span>Rename</span>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Star
+                      className={cn(
+                        "w-5 h-5",
+                        chat.favorite ? "fill-primary" : "fill-transparent"
+                      )}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="border select-none border-muted-foreground/40"
+                >
+                  <span>Bookmark</span>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant={"ghost"} size={"icon"}>
+                    <Archive className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="border select-none border-muted-foreground/40"
+                >
+                  <span>Archive</span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+        )}
+
+        <div className="w-full h-full" ref={scrollAreaRef}>
+          <div className="container h-full mx-auto max-w-7xl">
+            <div className="lg:w-[85%] mx-auto ">
+              {activeTab &&
+              activeTab.tab &&
+              chat &&
+              chat.messages?.length > 0 ? (
+                <div className="flex flex-col w-full h-full pb-4">
+                  <Conversation
+                    isLoading={chat.isLoading}
+                    messages={chat.messages}
                   />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                className="border select-none border-muted-foreground/40"
-              >
-                <span>Bookmark</span>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"ghost"} size={"icon"}>
-                  <Archive className="w-5 h-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                className="border select-none border-muted-foreground/40"
-              >
-                <span>Archive</span>
-              </TooltipContent>
-            </Tooltip>
+                </div>
+              ) : (
+                <EmptyWorkspace />
+              )}
+            </div>
           </div>
-        </div>
-      )}
 
-      <ScrollArea
-        ref={scrollAreaRef}
-        onScroll={handleScroll}
-        className="relative flex-1 w-full h-full"
-      >
-        <div className="container h-full mx-auto max-w-7xl">
-          <div className="lg:w-[85%] mx-auto ">
-            {activeTab && activeTab.tab && chat && chat.messages?.length > 0 ? (
-              <div className="flex flex-col w-full h-full pb-4">
-                <Conversation
-                  isLoading={chat.isLoading}
-                  messages={chat.messages}
-                />
-              </div>
-            ) : (
-              <EmptyWorkspace />
-            )}
-          </div>
+          {/* Active View */}
+          <div className="h-10 xl:h-52" />
         </div>
-
-        {/* Active View */}
-        <div
-          style={{
-            height: "10rem",
-          }}
-        />
       </ScrollArea>
 
       {/* Scroll to Bottom Button */}
@@ -333,7 +316,7 @@ export const Chat = React.memo(() => {
         <div className="pb-5">
           <AutoResizingInput
             isGenerating={chat.isLoading}
-            success={!chat.isLoading}
+            isError={chat.isError}
             onEnter={handleConverSation}
             onAbort={chat.abort}
           />
