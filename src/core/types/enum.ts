@@ -25,6 +25,73 @@ export enum EXTENSION_KEY {
   SETTINGS = "settings",
 }
 
+export enum EGlobalEvent {
+  // --- a
+  ACTIVE_TAB = "active_tab",
+  ARCHIVED_CHATS = "archive_active_chat",
+
+  // --- b
+  BOOKMARKED_CHATS = "bookmarked_chat",
+
+  // --- c
+  CHAT = "chat",
+  CHAT_WITH_PDF = "chat_with_pdf",
+  CODE = "code",
+
+  // --- d
+
+  // --- e
+
+  // --- f
+
+  // --- g
+
+  // --- h
+
+  // --- i
+  IMPORTANT_CHAT = "important_chat",
+
+  // --- j
+
+  // --- k
+
+  // --- l
+  LOCK_ACTIVE_TAB = "lock_active_tab",
+
+  // --- m
+
+  // --- n
+  NEW_CHAT_WITH_DEFAULT_MODEL = "new_chat_with_default_model",
+  NEW_CHAT_TEMPORARY = "new_chat_temporary",
+
+  // --- o
+
+  // --- p
+
+  // --- q
+
+  // --- r
+  RENAME_ACTIVE_CHAT = "rename_active_chat",
+
+  // --- s
+  SEARCH = "context_search",
+  SETTINGS = "settings",
+
+  // --- t
+
+  // --- u
+
+  // --- v
+
+  // --- w
+
+  // --- x
+
+  // --- y
+
+  // --- z
+}
+
 export enum SIDEBAR_ITEM_OPTION {
   RENAME = "rename",
   BOOKMARK = "bookmark",
